@@ -32,6 +32,18 @@ class BaseRotatingLogger(Protocol, Generic[RH]):
     def __init__(self, logger: type[RH],
                  mb_rotation: int,
                  backup_count: int) -> None:
+        """
+        Initialize the protocol instance with default rotation parameters.
+
+        Parameters
+        ----------
+        logger : type[RH]
+            The rotating handler class to be used.
+        mb_rotation : int
+            Default maximum log file size in MB.
+        backup_count : int
+            Default number of backup files to retain.
+        """
         self._logger = logger
         self._mb_rotation = mb_rotation
         self._backup_count = backup_count
