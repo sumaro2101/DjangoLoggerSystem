@@ -11,7 +11,7 @@ logger = logging.getLogger(ProductsConfig.name)
 class ProductTemplateView(TemplateView):
     template_name = 'products/products_template.html'
 
-    def raise_function():
+    def raise_function(self):
         raise ValueError('Get Value Error Raise')
 
     def get_context_data(self, **kwargs):

@@ -10,7 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 import os
-import logging
+import logging.config
 
 from dotenv import load_dotenv
 
@@ -80,7 +80,7 @@ handler_logger_list = [zip_rotation_handler(proj_name, LOGDIR, CONSOLE_NAME_HAND
 
 for handler, logger in handler_logger_list:
     handlers.update(**handler)
-    loggers.update(**loggers)
+    loggers.update(**logger)
 
 
 logging.config.dictConfig({
@@ -96,17 +96,16 @@ logging.config.dictConfig({
         },
     },
     'handlers': {
-
         **handlers,
     },
     'loggers': {
         **loggers,
         'django': {
-            'handlers': ['console'],
+            'handlers': [CONSOLE_NAME_HANDLER],
             'level': 'INFO',
         },
         'django.server': {
-            'handlers': ['console'],
+            'handlers': [CONSOLE_NAME_HANDLER],
             'level': 'INFO',
             'propagate': False,
         },

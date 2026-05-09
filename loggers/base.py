@@ -201,6 +201,10 @@ class BaseRotatingLogger(Protocol, Generic[RH]):
         tuple[LOG_HANDLER, LOGGER]
             A tuple containing the handler configuration dictionary and the logger configuration dictionary.
         """
-        log_handler = self._set_handler(proj_name, self._logger, root_dir, mb_rotation, backup_count, formatter, encoding)
-        logger = self._set_logger(proj_name, log_level.upper(), self._get_log_name(proj_name), *addition_name_handlers)
+        log_handler = self._set_handler(proj_name, self._logger,
+                                        root_dir, mb_rotation, backup_count,
+                                        formatter, encoding)
+        logger = self._set_logger(proj_name,
+                                  self._get_log_name(proj_name), *addition_name_handlers,
+                                  log_level=log_level.upper(), propagate=propagate)
         return (log_handler, logger)
