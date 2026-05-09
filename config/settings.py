@@ -9,9 +9,16 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
+import os
+import logging
+
+from dotenv import load_dotenv
 
 from pathlib import Path
+from loggers import zip_rotation_handler
 
+
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,10 +27,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-w(=m1)r5of@9wvl6*6j2n#3m2w1&h5bbdu(v0v0k7z*fk4$exe"
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG") == "True"
 
 ALLOWED_HOSTS = []
 
@@ -48,6 +55,64 @@ OUR_APPS = [
     'users',
     'products',
 ]
+
+INSTALLED_APPS = DJANGO_APPS + LIBRARY_APPS + OUR_APPS
+
+# Logging
+
+LOGGING_CONFIG = None
+
+LOGDIR = BASE_DIR.joinpath('logs')
+
+LOGLEVEL = os.getenv("DJANGO_LOG_LEVEL", "info").upper()
+
+CONSOLE_NAME_HANDLER = 'console'
+
+handlers = {
+    CONSOLE_NAME_HANDLER: {
+        'class': 'logging.StreamHandler',
+        'formatter': 'simple',
+    },
+}
+loggers = dict()
+
+handler_logger_list = [zip_rotation_handler(proj_name, LOGDIR, CONSOLE_NAME_HANDLER, log_level=LOGLEVEL) for proj_name in OUR_APPS]
+
+for handler, logger in handler_logger_list:
+    handlers.update(**handler)
+    loggers.update(**loggers)
+
+
+logging.config.dictConfig({
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '%(asctime)s %(levelname)s [%(name)s:%(lineno)s] %(module)s %(process)d %(thread)d %(message)s',
+        },
+        'django.server': {
+            'format': '[{server_time}] {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+
+        **handlers,
+    },
+    'loggers': {
+        **loggers,
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+        'django.server': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+})
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
